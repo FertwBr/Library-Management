@@ -18,5 +18,7 @@ public class Loan {
     private Long bookId;
     private LocalDate loanDate;
     private LocalDate dueDate;
-    // TODO ... outros campos relevantes
+    private LoanStatus status;
+    private LocalDate returnDate;
+
 }
