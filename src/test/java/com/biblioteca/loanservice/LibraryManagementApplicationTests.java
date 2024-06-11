@@ -1,4 +1,4 @@
-package io.github.librarymanagement.librarymanagement;
+package com.biblioteca.loanservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
