@@ -7,7 +7,10 @@ import com.biblioteca.loanservice.model.Loan;
 import com.biblioteca.loanservice.model.LoanStatus;
 import com.biblioteca.loanservice.repository.LoanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,6 +27,12 @@ public class LoanService {
 
     @Autowired
     private NotificationServiceClient notificationServiceClient;
+
+    @PostMapping("/{loanId}/return")
+    public ResponseEntity<Void> returnLoan(@PathVariable Long loanId) {
+        loanService.returnLoan(loanId);
+        return ResponseEntity.noContent().build();
+    }
 
     public Loan createLoan(Loan loan) {
     if (loan.getBookId() == null || loan.getUserId() == null) {
