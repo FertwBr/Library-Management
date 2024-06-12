@@ -31,8 +31,11 @@ public class LoanService {
     }
 
     try {
-        if (!catalogServiceClient.isBookAvailable(loan.getBookId())) {
-            throw new BookNotAvailableException("Livro não disponível para empréstimo.");
+        int availableCopies = catalogServiceClient.getBookAvailability(loan.getBookId());
+
+        if (availableCopies <= 1) {
+            notificationServiceClient.notifyBookUnavailability(loan.getBookId(), loan.getUserId());
+            throw new BookNotAvailableException("Livro não disponível para empréstimo. Apenas 1 cópia disponível.");
         }
 
         loan.setLoanDate(LocalDate.now());
@@ -99,5 +102,5 @@ public class LoanService {
         catalogServiceClient.updateBookStatus(loan.getBookId(), true);
         notificationServiceClient.notifyLoanReturn(loan);
     }
-    //Todo #4 ... (Outros métodos, como checkOverdueLoans, podem ser adicionados aqui) ...
+
 }
