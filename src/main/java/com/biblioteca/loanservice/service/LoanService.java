@@ -2,10 +2,7 @@ package com.biblioteca.loanservice.service;
 
 import com.biblioteca.loanservice.client.CatalogServiceClient;
 import com.biblioteca.loanservice.client.NotificationServiceClient;
-import com.biblioteca.loanservice.exception.CatalogServiceUnavailableException;
-import com.biblioteca.loanservice.exception.LoanNotFoundException;
-import com.biblioteca.loanservice.exception.LoanServiceException;
-import com.biblioteca.loanservice.exception.NotificationServiceUnavailableException;
+import com.biblioteca.loanservice.exception.*;
 import com.biblioteca.loanservice.model.Loan;
 import com.biblioteca.loanservice.model.LoanStatus;
 import com.biblioteca.loanservice.repository.LoanRepository;
@@ -29,65 +26,60 @@ public class LoanService {
     private NotificationServiceClient notificationServiceClient;
 
     public Loan createLoan(Loan loan) {
-        try {
-            // Verificar a disponibilidade do livro no CatalogService
-            if (!catalogServiceClient.isBookAvailable(loan.getBookId())) {
-                loan.setStatus(LoanStatus.REJECTED);
-                notificationServiceClient.notifyLoanRejection(loan); // Notificar rejeição
-                return loanRepository.save(loan);
-            }
-
-            // Registrar o empréstimo no banco de dados
-            loan.setStatus(LoanStatus.APPROVED);
-            Loan savedLoan = loanRepository.save(loan);
-
-            // Notificar o usuário sobre a aprovação do empréstimo
-            notificationServiceClient.notifyLoanApproval(savedLoan); // Notificar aprovação
-
-            // Atualizar o status do livro para indisponível no CatalogService
-            catalogServiceClient.updateBookStatus(loan.getBookId(), false);
-
-            return savedLoan;
-        } catch (CatalogServiceUnavailableException e) {
-            // Lidar com a indisponibilidade do CatalogService
-            throw new LoanServiceException("Erro ao verificar a disponibilidade do livro.", e);
-        } catch (NotificationServiceUnavailableException e) {
-            // Lidar com a indisponibilidade do NotificationService
-            // (Opcional: Registrar o erro para posterior processamento)
-            throw new LoanServiceException("Erro ao enviar notificação.", e);
-        }
+    if (loan.getBookId() == null || loan.getUserId() == null) {
+        throw new IllegalArgumentException("ID do livro e ID do usuário são obrigatórios.");
     }
+
+    try {
+        if (!catalogServiceClient.isBookAvailable(loan.getBookId())) {
+            throw new BookNotAvailableException("Livro não disponível para empréstimo.");
+        }
+
+        loan.setLoanDate(LocalDate.now());
+        loan.setDueDate(LocalDate.now().plusWeeks(2)); // Prazo de 2 semanas (personalizável)
+        loan.setStatus(LoanStatus.APPROVED);
+        Loan savedLoan = loanRepository.save(loan);
+
+        catalogServiceClient.updateBookStatus(loan.getBookId(), false);
+        notificationServiceClient.notifyLoanApproval(savedLoan);
+
+        return savedLoan;
+    } catch (CatalogServiceUnavailableException e) {
+        throw new LoanServiceException("O serviço de catálogo está indisponível no momento. Tente novamente mais tarde.", e);
+    } catch (NotificationServiceUnavailableException e) {
+        throw new LoanServiceException("Erro ao enviar notificação.", e);
+    }
+}
 
     public List<Loan> getAllLoans() {
         return loanRepository.findAll();
     }
 
     public Loan getLoanById(Long id) {
-        return loanRepository.findById(id).orElse(null);
+        return loanRepository.findById(id)
+                .orElseThrow(() -> new LoanNotFoundException("Empréstimo não encontrado com o ID: " + id));
     }
 
     public Loan updateLoan(Long id, Loan loanDetails) {
         Loan loan = getLoanById(id);
-        if (loan != null) {
-            // Atualize os campos do empréstimo com os valores de loanDetails
-            // ... (implementar a lógica de atualização)
-            return loanRepository.save(loan);
-        }
-        return null;
+
+        // Atualize os campos do empréstimo com os valores de loanDetails
+        // Todo #3 ... (implementar a lógica de atualização)
+        return loanRepository.save(loan);
     }
 
-    public boolean deleteLoan(Long id) {
+    public void deleteLoan(Long id) {
         Loan loan = getLoanById(id);
-        if (loan != null) {
-            loanRepository.delete(loan);
-            return true;
-        }
-        return false;
+        loanRepository.delete(loan);
     }
 
     public void returnLoan(Long loanId) {
         Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new LoanNotFoundException("Empréstimo não encontrado."));
+
+        if (loan.getStatus() != LoanStatus.APPROVED) {
+            throw new InvalidLoanStatusException("Não é possível devolver um empréstimo que não está aprovado.");
+        }
 
         loan.setStatus(LoanStatus.RETURNED);
         loan.setReturnDate(LocalDate.now());
@@ -96,4 +88,5 @@ public class LoanService {
         catalogServiceClient.updateBookStatus(loan.getBookId(), true);
         notificationServiceClient.notifyLoanReturn(loan);
     }
+    //Todo #4 ... (Outros métodos, como checkOverdueLoans, podem ser adicionados aqui) ...
 }
