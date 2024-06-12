@@ -62,13 +62,24 @@ public class LoanService {
 
     public Loan updateLoan(Long id, Loan loanDetails) {
         Loan loan = getLoanById(id);
+        
+        if (loanDetails.getStatus() == LoanStatus.RETURNED && loan.getStatus() != LoanStatus.APPROVED) {
+            throw new InvalidLoanStatusException("Não é possível marcar um empréstimo como devolvido se ele não estiver aprovado.");
+        }
+        if (loanDetails.getDueDate() != null) {
+            loan.setDueDate(loanDetails.getDueDate());
+        }
+        if (loanDetails.getStatus() != null) {
+            loan.setStatus(loanDetails.getStatus());
+        }
+        if (loanDetails.getReturnDate() != null && loan.getStatus() == LoanStatus.RETURNED) {
+            loan.setReturnDate(loanDetails.getReturnDate());
+        }
 
-        // Atualize os campos do empréstimo com os valores de loanDetails
-        // Todo #3 ... (implementar a lógica de atualização)
         return loanRepository.save(loan);
     }
 
-    public void deleteLoan(Long id) {
+    public boolean deleteLoan(Long id) {
         Loan loan = getLoanById(id);
         loanRepository.delete(loan);
     }
