@@ -97,19 +97,28 @@ public class LoanService {
     }
 
     public void returnLoan(Long loanId) {
-        Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new LoanNotFoundException("Empréstimo não encontrado."));
+    Loan loan = loanRepository.findById(loanId)
+            .orElseThrow(() -> new LoanNotFoundException("Empréstimo não encontrado."));
 
-        if (loan.getStatus() != LoanStatus.APPROVED) {
-            throw new InvalidLoanStatusException("Não é possível devolver um empréstimo que não está aprovado.");
-        }
-
-        loan.setStatus(LoanStatus.RETURNED);
-        loan.setReturnDate(LocalDate.now());
-        loanRepository.save(loan);
-
-        catalogServiceClient.updateBookStatus(loan.getBookId(), true);
-        notificationServiceClient.notifyLoanReturn(loan);
+    if (loan.getStatus() != LoanStatus.APPROVED) {
+        throw new InvalidLoanStatusException("Não é possível devolver um empréstimo que não está aprovado.");
     }
+
+    loan.setStatus(LoanStatus.RETURNED);
+    loan.setReturnDate(LocalDate.now());
+    loanRepository.save(loan);
+
+    try {
+        catalogServiceClient.updateBookStatus(loan.getBookId(), true);
+    } catch (CatalogServiceUnavailableException e) {
+        throw new LoanServiceException("O serviço de catálogo está indisponível no momento. Tente novamente mais tarde.", e);
+    }
+
+    try {
+        notificationServiceClient.notifyLoanReturn(loan);
+    } catch (NotificationServiceUnavailableException e) {
+        throw new LoanServiceException("Erro ao enviar notificação.", e);
+    }
+}
 
 }
