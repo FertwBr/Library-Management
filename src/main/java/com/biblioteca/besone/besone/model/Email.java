@@ -1,7 +1,5 @@
-package com.biblioteca.besone.dtos;
+package com.biblioteca.besone.besone.model;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,19 +9,12 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmailDto {
+public class Email {
 
-    @NotBlank
     private String owner;
-    @NotBlank
-    @Email
     private String emailFrom;
-    @NotBlank
-    @Email
     private String emailTo;
-    @NotBlank
     private String subject;
-    @NotBlank
     private String text;
 
 }

@@ -1,4 +1,4 @@
-package com.biblioteca.loanservice.model;
+package com.biblioteca.besone.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

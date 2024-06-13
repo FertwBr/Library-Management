@@ -1,6 +1,6 @@
-package com.biblioteca.loanservice.repository;
+package com.biblioteca.besone.repository;
 
-import com.biblioteca.loanservice.model.Loan;
+import com.biblioteca.besone.model.Loan;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface LoanRepository extends JpaRepository<Loan, Long> { }

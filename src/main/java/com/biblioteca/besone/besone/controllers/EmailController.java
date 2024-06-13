@@ -1,4 +1,4 @@
-package com.biblioteca.besone.controllers;
+package com.biblioteca.besone.besone.controllers;
 
 import com.biblioteca.besone.dtos.EmailDto;
 import com.biblioteca.besone.model.Email;

@@ -1,7 +1,7 @@
-package com.biblioteca.loanservice.controller;
+package com.biblioteca.besone.controller;
 
-import com.biblioteca.loanservice.model.Loan;
-import com.biblioteca.loanservice.service.LoanService;
+import com.biblioteca.besone.model.Loan;
+import com.biblioteca.besone.service.LoanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.biblioteca.besone.services;
+package com.biblioteca.besone.besone.services;
 
 import com.biblioteca.besone.model.Email;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package com.biblioteca.loanservice.exception;
+package com.biblioteca.besone.exception;
 
 public class LoanServiceException extends RuntimeException {
     public LoanServiceException(String message) {

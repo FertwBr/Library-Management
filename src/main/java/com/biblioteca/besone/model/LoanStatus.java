@@ -1,4 +1,4 @@
-package com.biblioteca.loanservice.model;
+package com.biblioteca.besone.model;
 
 public enum LoanStatus {
     PENDING,

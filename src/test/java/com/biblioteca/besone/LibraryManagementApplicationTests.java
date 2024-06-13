@@ -1,4 +1,4 @@
-package com.biblioteca.loanservice;
+package com.biblioteca.besone;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
